@@ -1,0 +1,165 @@
+DROP DATABASE IF EXISTS parkelj1_rugby;
+
+CREATE DATABASE parkelj1_rugby;
+
+use parkelj1_rugby;
+
+ 
+CREATE TABLE Person (
+    Person_ID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Address VARCHAR(100) NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    Email VARCHAR(50) NULL,
+    Photo BLOB NULL)
+    ENGINE = INNODB;
+
+show warnings;
+
+
+CREATE TABLE Coach (
+    Coach_ID INT PRIMARY KEY,
+    Start_Date DATE NULL,
+    FOREIGN KEY(Coach_ID) REFERENCES Person(Person_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Player (
+    Player_ID INT PRIMARY KEY,
+    DOB DATE NOT NULL,
+    School VARCHAR(25) NULL,
+    FOREIGN KEY(Player_ID) REFERENCES Person(Person_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Qualification (
+    Qualification_Name VARCHAR(25) PRIMARY KEY)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+
+
+
+CREATE TABLE Team (
+    Team_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Team_Name VARCHAR(25) NOT NULL,
+    Team_Age VARCHAR(25) NOT NULL,
+    Year INT NOT NULL)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+
+CREATE TABLE Player_of_Team (
+    Player_ID INT,
+    Team_ID INT,
+    FOREIGN KEY(Player_ID) REFERENCES Player(Player_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    FOREIGN KEY(Team_ID) REFERENCES Team(Team_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    PRIMARY KEY(Player_ID, Team_ID))
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Coach_of_Team (
+    Coach_ID INT,
+    Team_ID INT,
+    FOREIGN KEY(Coach_ID) REFERENCES Coach(Coach_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    FOREIGN KEY(Team_ID) REFERENCES Team(Team_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    PRIMARY KEY(Coach_ID, Team_ID))
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Caregiver (
+     Caregiver_ID INT,
+     Player_ID INT,
+     FOREIGN KEY(Caregiver_ID) REFERENCES Person(Person_ID)
+     ON DELETE RESTRICT
+     ON UPDATE CASCADE,
+     FOREIGN KEY(Player_ID) REFERENCES Player(Player_ID)
+     ON DELETE RESTRICT
+     ON UPDATE CASCADE,
+     PRIMARY KEY(Caregiver_ID, Player_ID))
+     ENGINE=INNODB;
+
+show warnings;
+
+
+
+ 
+
+ 
+
+
+CREATE TABLE Qualification_of_Coach 
+(
+    Qualification_Name VARCHAR(25),
+    Coach_ID INT PRIMARY KEY,    
+    FOREIGN KEY(Coach_ID) REFERENCES Coach(Coach_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    FOREIGN KEY(Qualification_Name) REFERENCES Qualification(Qualification_Name)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+)
+    ENGINE=INNODB;
+
+
+
+DELIMITER //
+
+CREATE FUNCTION teamsize (selectedTeam VARCHAR(50), selectedYear INT)
+    RETURNS INT
+    BEGIN
+         DECLARE thisCount INT;
+         SET thisCount = (SELECT COUNT(pers.Person_ID)
+               FROM Person pers JOIN Player play ON (pers.Person_ID = play.Player_ID)
+               JOIN Player_of_Team PT ON (PT.Player_ID = play.Player_ID)
+               JOIN Team T ON (T.Team_ID = PT.Team_ID)
+               WHERE T.Team_Name = selectedTeam AND T.Year = selectedYear);
+	       RETURN thisCount;
+     END//
+
+DELIMITER ;
+
+
+
+
+
+
+CREATE VIEW phoneList AS 
+	(SELECT p1.FirstName AS 'Players First Name', p1.LastName AS 'Players Last Name', 
+		p2.FirstName AS 'Caregiver First Name', p2.LastName AS 'Caregiver Last Name', 
+		T.Team_Name AS 'Team Name', p2.Phone as 'Phone Number' 
+	FROM Person p1 JOIN Player play ON (p1.Person_ID = play.Player_ID) 
+		JOIN Caregiver c ON (c.Player_ID = play.Player_ID) 
+		JOIN Person p2 ON (p2.Person_ID = c.Caregiver_ID) 
+		JOIN Player play2 ON (p1.Person_ID = play2.Player_ID) 
+		JOIN Player_of_Team PT ON (PT.Player_ID = play.Player_ID) 
+		JOIN Team T ON (T.Team_ID = PT.Team_ID));
+
+
+
+

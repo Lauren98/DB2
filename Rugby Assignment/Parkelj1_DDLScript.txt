@@ -1,0 +1,128 @@
+DROP DATABASE IF EXISTS parkelj1_rugby;
+
+CREATE DATABASE parkelj1_rugby;
+
+use parkelj1_rugby;
+
+ 
+CREATE TABLE Person (
+    Person_ID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Address VARCHAR(100) NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    Email VARCHAR(50) NULL,
+    Photo VARCHAR(50) NULL)
+    ENGINE = INNODB;
+
+show warnings;
+
+
+CREATE TABLE Coach (
+    Coach_ID INT PRIMARY KEY,
+    Start_Date DATETIME NULL,
+    FOREIGN KEY(Coach_ID) REFERENCES Person(Person_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Player (
+    Player_ID INT PRIMARY KEY,
+    DOB DATETIME NOT NULL,
+    School VARCHAR(25) NULL,
+    FOREIGN KEY(Player_ID) REFERENCES Person(Person_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Qualification (
+    Qualification_Name VARCHAR(25) PRIMARY KEY)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+
+
+
+CREATE TABLE Team (
+    Team_ID INT PRIMARY KEY,
+    Team_Name VARCHAR(25) NOT NULL,
+    Team_Age INT NOT NULL,
+    Year DATETIME NOT NULL)
+    ENGINE=INNODB;
+
+show warnings;
+
+
+
+CREATE TABLE Player_of_Team (
+    Player_ID INT,
+    Team_ID INT,
+    FOREIGN KEY(Player_ID) REFERENCES Player(Player_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    FOREIGN KEY(Team_ID) REFERENCES Team(Team_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    PRIMARY KEY(Player_ID, Team_ID))
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Coach_of_Team (
+    Coach_ID INT,
+    Team_ID INT,
+    FOREIGN KEY(Coach_ID) REFERENCES Coach(Coach_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    FOREIGN KEY(Team_ID) REFERENCES Team(Team_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    PRIMARY KEY(Coach_ID, Team_ID))
+    ENGINE=INNODB;
+
+show warnings;
+
+
+CREATE TABLE Caregiver (
+     Caregiver_ID INT,
+     Player_ID INT,
+     FOREIGN KEY(Caregiver_ID) REFERENCES Person(Person_ID)
+     ON DELETE RESTRICT
+     ON UPDATE CASCADE,
+     FOREIGN KEY(Player_ID) REFERENCES Player(Player_ID)
+     ON DELETE RESTRICT
+     ON UPDATE CASCADE,
+     PRIMARY KEY(Caregiver_ID, Player_ID))
+     ENGINE=INNODB;
+
+show warnings;
+
+
+
+ 
+
+ 
+
+
+CREATE TABLE Qualification_of_Coach 
+(
+    Qualification_Name VARCHAR(25),
+    Coach_ID INT PRIMARY KEY,    
+    FOREIGN KEY(Coach_ID) REFERENCES Coach(Coach_ID)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+    FOREIGN KEY(Qualification_Name) REFERENCES Qualification(Qualification_Name)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+)
+    ENGINE=INNODB;
+
